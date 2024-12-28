@@ -6,7 +6,12 @@ import jwt from 'jsonwebtoken';
 export const signup = async (req, res, next) => {
     const { username, email, password } = req.body;
     const hashedPassword = bcryptjs.hashSync(password, 10);
-    const newUser = new User({ username, email, password: hashedPassword });
+    const newUser = new User({ 
+        username, 
+        email, 
+        password: hashedPassword, 
+        isAdmin: false // Set mặc định là false
+    });
     try {
         await newUser.save();
         res.status(201).json({ message: 'User created successfully!' });
@@ -14,6 +19,7 @@ export const signup = async (req, res, next) => {
         next(err);
     }
 };
+
 
 export const signin = async (req, res, next) => {
     const { email, password } = req.body;
@@ -50,6 +56,7 @@ export const google = async (req, res, next) => {
                 email: req.body.email,
                 password: hashedPassword,
                 avatar: req.body.photo,
+                isAdmin: false // Set mặc định là false
             });
             await newUser.save();
             const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
@@ -59,7 +66,7 @@ export const google = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
-}
+};
 
 export const signOut = async (req, res, next) => {
     try {

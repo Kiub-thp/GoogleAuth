@@ -4,12 +4,42 @@ import OAuth from "../components/OAuth";
 
 export default function SignUp() {
   const [formData, setFormData] = useState({});
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const isPasswordStrong = (password) => {
+    const minLength = /.{6,}/; // Dài ít nhất 6 ký tự
+    const hasUppercase = /[A-Z]/; // Ít nhất một chữ hoa
+    const hasLowercase = /[a-z]/; // Ít nhất một chữ thường
+    const hasNumber = /\d/; // Ít nhất một số
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/; // Ít nhất một ký tự đặc biệt
+
+    return (
+      minLength.test(password) &&
+      hasUppercase.test(password) &&
+      hasLowercase.test(password) &&
+      hasNumber.test(password) &&
+      hasSpecialChar.test(password)
+    );
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!isPasswordStrong(formData.password)) {
+      setError(
+        "Password must be at least 6 characters long, include an uppercase letter, a lowercase letter, a number, and a special character."
+      );
+      return;
+    }
+
+    if (formData.password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
     try {
       setLoading(true);
       const res = await fetch("/api/auth/signup", {
@@ -61,6 +91,14 @@ export default function SignUp() {
           placeholder="Password"
           onChange={handleChange}
         />
+        <input
+          type="password"
+          className="border p-3 rounded-lg"
+          id="confirmPassword"
+          placeholder="Confirm Password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+        />
         <button
           disabled={loading}
           className="bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80"
@@ -75,7 +113,7 @@ export default function SignUp() {
           <span className="text-blue-700">Sign in</span>
         </Link>
       </div>
-      {error && <p className="text-red-500">{error}</p>}
+      {error && <p className="text-red-500 mt-2">{error}</p>}
     </div>
   );
 }
