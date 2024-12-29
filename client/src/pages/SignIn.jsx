@@ -29,7 +29,11 @@ export default function SignIn() {
         return;
       }
       dispatch(signInSuccess(data));
-      navigate("/");
+      if (data.isAdmin) {
+        navigate("/admin/home");
+      } else {
+        navigate("/");
+      }
     } catch (error) {
       dispatch(signInFailure(error.message));
     }
